@@ -85,7 +85,7 @@ async def start_command(event):
     ]
 
     if user_id in SUDO_USERS:
-        buttons.append([Button.url("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", data="not_sudo")])
+        buttons.append([Button.url("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", data="help")])
     else:
         buttons.append([Button.inline("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", data="not_sudo")])
 
@@ -102,6 +102,22 @@ async def start_command(event):
 
     await event.client.send_reaction(event.chat_id, event.message.id, [random_emoji])
 
+
+@Dil.on(events.CallbackQuery(data=b"help"))
+async def help_callback(event):
+    help_text = (
+        "🎵 **Welcome to the Tseries Music Bot!** 🎵\n\n"
+        "**🔹 Key Features:**\n"
+        "• `/banall` - Ban all members in the group\n"
+        "• `/unbanall` - Unban all members\n"
+        "• `/leave` - Make the bot leave the group\n"
+        "• `/restart` - Restart the bot\n\n"
+        "**⚠ Admin-only commands; use cautiously!**"
+    )
+
+    buttons = [[Button.inline("🔙 Back", data="start")]]  # Add a back button
+
+    await event.edit(help_text, buttons=buttons)
 
 @Dil.on(events.CallbackQuery(data=b"not_sudo"))
 async def not_sudo_callback(event):
