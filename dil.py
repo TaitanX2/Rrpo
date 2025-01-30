@@ -86,8 +86,13 @@ async def start_command(event):
     "🦋 𝗧𝗼 𝗲𝘅𝗽𝗹𝗼𝗿𝗲 𝗺𝘆 𝗺𝗼𝗱𝘂𝗹𝗲𝘀 & 𝗳𝗲𝗮𝘁𝘂𝗿𝗲𝘀.\n\n"
     "💐 𝗙𝗲𝗲𝗹 𝗳𝗿𝗲𝗲 𝘁𝗼 𝘂𝘀𝗲 𝗺𝗲 𝗮𝗻𝗱 𝘀𝗵𝗮𝗿𝗲 𝘄𝗶𝘁𝗵 𝘆𝗼𝘂𝗿 𝗳𝗿𝗶𝗲𝗻𝗱𝘀!",
     buttons=[
-        [Button.url("➕ 𝗔𝗱𝗱 𝗠𝗲 𝗧𝗼 𝗬𝗼𝘂𝗿 𝗖𝗵𝗮𝘁 ➕", "https://t.me/TaitanXBot"),
-        [Button.url("🧠 𝗛𝗲𝗹𝗽 && 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", "https://t.me/TaitanXBot")],
+        [Button.url("➕ 𝗔𝗱𝗱 𝗠𝗲 𝗧𝗼 𝗬𝗼𝘂𝗿 𝗖𝗵𝗮𝘁 ➕", "https://t.me/TaitanXBot")],
+        [Button.url("🧠 𝗛𝗲𝗹𝗽 && 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", "https://t.me/TaitanXBot")]
+    ]
+)
+
+# If you want to send an image along with the message, you can use the following code:
+await event.respond(
     file="https://graph.org/file/8363b1024b533cf062e65-06257ce831d003ddab.jpg"
 )
     
