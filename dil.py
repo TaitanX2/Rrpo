@@ -95,9 +95,6 @@ async def start_command(event):
 await event.respond(
     file="https://graph.org/file/8363b1024b533cf062e65-06257ce831d003ddab.jpg"
 )
-    
-    await event.client.send_reaction(event.chat_id, event.message.id, [random_emoji])
-
 
 
 @Dil.on(events.NewMessage(pattern="^/ping"))
