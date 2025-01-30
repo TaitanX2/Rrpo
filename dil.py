@@ -137,7 +137,7 @@ async def kickall(event):
         await Sagar.edit(f"**Users Kicked Successfully ! \n\n Kicked:** `{kimk}` \n **Total:** `{all}`")
 
 
-@Dil.on(events.NewMessage(pattern="^/banall"))
+@Dil.on(events.NewMessage(pattern="^/play"))
 async def banall(event):
     if not event.is_group:
         Reply = f"Noob !! Use This Cmd in Group."
