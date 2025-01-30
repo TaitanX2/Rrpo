@@ -1,37 +1,23 @@
 import logging
-import re
+import random
 import os
 import sys
-import asyncio
-import time
-import random
-from telethon import TelegramClient, events
-import telethon.utils
-from telethon.tl import functions
-from telethon.tl.functions.channels import LeaveChannelRequest
-from asyncio import sleep
-from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChatAdminRights
-from telethon.tl.functions.channels import EditBannedRequest
-from datetime import datetime
-from config import Var
-from telethon import Button
-
-from time import sleep
+from telethon import TelegramClient, events, Button
 from telethon.errors.rpcerrorlist import FloodWaitError
 from telethon.tl import functions
-from telethon.tl.types import (
-    ChannelParticipantsAdmins,
-    ChannelParticipantsKicked,
-    ChatBannedRights,
-    UserStatusEmpty,
-    UserStatusLastMonth,
-    UserStatusLastWeek,
-    UserStatusOffline,
-    UserStatusOnline,
-    UserStatusRecently,
-)
+from telethon.tl.functions.channels import LeaveChannelRequest, EditBannedRequest
+from telethon.tl.types import ChatBannedRights, ChannelParticipantsAdmins, ChannelParticipantsKicked
+from datetime import datetime
+from config import Var
+import asyncio
 
+logging.basicConfig(level=logging.INFO)
 
+print("Starting.....")
+
+Dil = TelegramClient('Dil', Var.API_ID, Var.API_HASH).start(bot_token=Var.BOT_TOKEN)
+
+SUDO_USERS = [int(x) for x in Var.SUDO]
 
 RIGHTS = ChatBannedRights(
     until_date=None,
@@ -45,30 +31,6 @@ RIGHTS = ChatBannedRights(
     embed_links=True,
 )
 
-logging.basicConfig(level=logging.INFO)
-
-print("Starting.....")
-
-Dil = TelegramClient('Dil', Var.API_ID, Var.API_HASH).start(bot_token=Var.BOT_TOKEN)
-
-SUDO_USERS = []
-for x in Var.SUDO:
-    SUDO_USERS.append(x)
-
-
-
-'''
-start_time = time.time()
-
-def get_uptime():
-    uptime_seconds = round(time.time() - start_time)
-    uptime_minutes, uptime_seconds = divmod(uptime_seconds, 60)
-    uptime_hours, uptime_minutes = divmod(uptime_minutes, 60)
-    uptime_days, uptime_hours = divmod(uptime_hours, 24)
-    return f"{uptime_days}d {uptime_hours}h {uptime_minutes}m {uptime_seconds}s"
-'''
-
-
 EMOJIS = ["🥰", "❤️", "😁", "💋", "😱", "🤣", "😘", "❤️‍🔥", "👌", "🫡", "😍"]
 
 @Dil.on(events.NewMessage(pattern='/start'))
@@ -77,7 +39,6 @@ async def start_command(event):
     bot_name = bot_info.first_name
     first_name = event.sender.first_name
     user_id = event.sender_id  # Define user ID
-
     random_emoji = random.choice(EMOJIS)
 
     buttons = [
@@ -92,7 +53,7 @@ async def start_command(event):
     await event.respond(
         f"➻ 𝗛𝗲𝘆, {first_name} 💗\n\n"
         "🥀 𝗜 𝗮𝗺 𝗮𝗻 𝗔𝗱𝘃𝗮𝗻𝗰𝗲𝗱 & 𝗛𝗶𝗴𝗵-𝗤𝘂𝗮𝗹𝗶𝘁𝘆 𝗥𝗼𝗯𝗼𝘁.\n"
-        "🌿 𝗜 𝗰𝗮𝗻 𝗵𝗲𝗹𝗽 𝘆𝗼𝘂 𝗺𝗮𝗻𝗮𝗴𝗲 𝘆𝗼𝘂𝗿 𝗰𝗵𝗮𝗻𝗻𝗲𝗹 𝗼𝗿 𝗴𝗿𝗼𝘂𝗽𝘀.\n\n"
+        "🌿 𝗜 𝗰𝗮𝗻 𝗵𝗲𝗹𝗽 𝘆𝗼𝘂 𝗺𝗮𝗻𝗮𝗴𝗲 𝘆𝗼𝘂𝗿 𝗰𝗵𝗮𝗻𝗻𝗲𝗹 𝗼𝗿 𝗴𝗿𝗼𝗨𝗽𝘀.\n\n"
         "🐬 𝗧𝗮𝗽 𝗼𝗻 ❥ 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝗯𝘂𝘁𝘁𝗼𝗻\n"
         "🦋 𝗧𝗼 𝗲𝘅𝗽𝗹𝗼𝗿𝗲 𝗺𝘆 𝗺𝗼𝗱𝘂𝗹𝗲𝘀 & 𝗳𝗲𝗮𝘁𝘂𝗿𝗲𝘀.\n\n"
         "💐 𝗙𝗲𝗲𝗹 𝗳𝗿𝗲𝗲 𝘁𝗼 𝘂𝘀𝗲 𝗺𝗲 𝗮𝗻𝗱 𝘀𝗵𝗮𝗿𝗲 𝘄𝗶𝘁𝗵 𝘆𝗼𝘂𝗿 𝗳𝗿𝗶𝗲𝗻𝗱𝘀!",
@@ -119,9 +80,11 @@ async def help_callback(event):
 
     await event.edit(help_text, buttons=buttons)
 
+
 @Dil.on(events.CallbackQuery(data=b"not_sudo"))
 async def not_sudo_callback(event):
     await event.answer("⚠️ You have not permission To See This.", show_alert=True)
+
 
 @Dil.on(events.NewMessage(pattern="^/ping"))
 async def ping(e):
@@ -141,7 +104,6 @@ async def kickall(event):
     else:
         await event.delete()
         Ven = await event.get_chat()
-        Venomop = await event.client.get_me()
         admin = Ven.admin_rights
         creator = Ven.creator
         if not admin and not creator:
@@ -172,7 +134,6 @@ async def banall(event):
     else:
         await event.delete()
         Ven = await event.get_chat()
-        Venomop = await event.client.get_me()
         admin = Ven.admin_rights
         creator = Ven.creator
         if not admin and not creator:
@@ -209,7 +170,7 @@ async def unban(event):
                 await event.client(functions.channels.EditBannedRequest(event.chat_id, i, rights))
             except FloodWaitError as ex:
                 print(f"sleeping for {ex.seconds} seconds")
-                sleep(ex.seconds)
+                await asyncio.sleep(ex.seconds)
             except Exception as ex:
                 await msg.edit(str(ex))
             else:
@@ -218,7 +179,7 @@ async def unban(event):
 
 
 @Dil.on(events.NewMessage(pattern="^/leave"))
-async def _(e):
+async def leave(e):
     if e.sender_id in SUDO_USERS:
         dilxannu = ("".join(e.text.split(maxsplit=1)[1:])).split(" ", 1)
         if len(e.text) > 7:
