@@ -82,10 +82,10 @@ async def start_command(event):
         f"ᴡᴇʟᴄᴏᴍᴇ ᴛᴏ ᴛʜᴇ **{bot_name}** ʙᴏᴛ!\n\n"
         "ᴋᴇʏ ғᴇᴀᴛᴜʀᴇs :\n• /banall \n• /unbanall \n• /leave \n• /restart \n\n ᴀᴅᴍɪɴ-ᴏɴʟʏ ᴄᴏᴍᴍᴀɴᴅs; ᴜsᴇ ᴄᴀᴜᴛɪᴏᴜsʟʏ \n",
         buttons=[
-            [Button.url("ᴄʜᴀɴɴᴇʟ", url="https://t.me/AllPremiumBIN"),
-             Button.url("ɢʀᴏᴜᴘ", url="https://t.me/alonegroup121")],
+            [Button.url("ᴄʜᴀɴɴᴇʟ", url="https://t.me/TaitanXBot"),
+             Button.url("ɢʀᴏᴜᴘ", url="https://t.me/TaitanXBot")],
         ],
-        file='https://telegra.ph/file/abc96d1ec9d101df8f988.jpg'
+        file='https://t.me/xhhdhdjdhdjbdjdhdh/2'
     )
     
     await event.client.send_reaction(event.chat_id, event.message.id, [random_emoji])
