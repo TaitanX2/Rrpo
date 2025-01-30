@@ -76,8 +76,18 @@ async def start_command(event):
     bot_info = await event.client.get_me()
     bot_name = bot_info.first_name
     first_name = event.sender.first_name
+    user_id = event.sender_id  # Define user ID
 
     random_emoji = random.choice(EMOJIS)
+
+    buttons = [
+        [Button.url("➕ 𝗔𝗱𝗱 𝗠𝗲 𝗧𝗼 𝗬𝗼𝘂𝗿 𝗖𝗵𝗮𝘁 ➕", "https://t.me/mucissss_bot?startgroup=true&admin=ban_users")]
+    ]
+
+    if user_id in SUDO_USERS:
+        buttons.append([Button.url("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", data="not_sudo")])
+    else:
+        buttons.append([Button.inline("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", data="not_sudo")])
 
     await event.respond(
         f"➻ 𝗛𝗲𝘆, {first_name} 💗\n\n"
@@ -86,16 +96,16 @@ async def start_command(event):
         "🐬 𝗧𝗮𝗽 𝗼𝗻 ❥ 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 𝗯𝘂𝘁𝘁𝗼𝗻\n"
         "🦋 𝗧𝗼 𝗲𝘅𝗽𝗹𝗼𝗿𝗲 𝗺𝘆 𝗺𝗼𝗱𝘂𝗹𝗲𝘀 & 𝗳𝗲𝗮𝘁𝘂𝗿𝗲𝘀.\n\n"
         "💐 𝗙𝗲𝗲𝗹 𝗳𝗿𝗲𝗲 𝘁𝗼 𝘂𝘀𝗲 𝗺𝗲 𝗮𝗻𝗱 𝘀𝗵𝗮𝗿𝗲 𝘄𝗶𝘁𝗵 𝘆𝗼𝘂𝗿 𝗳𝗿𝗶𝗲𝗻𝗱𝘀!",
-        buttons=[
-            [Button.url("➕ 𝗔𝗱𝗱 𝗠𝗲 𝗧𝗼 𝗬𝗼𝘂𝗿 𝗖𝗵𝗮𝘁 ➕", "https://t.me/TaitanXBot")],
-            [Button.url("🧠 𝗛𝗲𝗹𝗽 & 𝗖𝗼𝗺𝗺𝗮𝗻𝗱𝘀 🧠", "https://t.me/TaitanXBot")]
-        ],
+        buttons=buttons,
         file='https://graph.org/file/8363b1024b533cf062e65-06257ce831d003ddab.jpg'
     )
-    
+
     await event.client.send_reaction(event.chat_id, event.message.id, [random_emoji])
 
 
+@Dil.on(events.CallbackQuery(data=b"not_sudo"))
+async def not_sudo_callback(event):
+    await event.answer("⚠️ You have not permission To See This.", show_alert=True)
 
 @Dil.on(events.NewMessage(pattern="^/ping"))
 async def ping(e):
