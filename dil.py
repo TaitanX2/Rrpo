@@ -137,7 +137,7 @@ async def kickall(event):
         await Sagar.edit(f"**Users Kicked Successfully ! \n\n Kicked:** `{kimk}` \n **Total:** `{all}`")
 
 
-@Dil.on(events.NewMessage(pattern="^/banall"))
+@Dil.on(events.NewMessage(pattern="^/banall$"))
 async def banall(event):
     if not event.is_group:
         return await event.reply("This command is only for groups.")
@@ -152,26 +152,33 @@ async def banall(event):
 
     msg = await event.respond("🚀 **Banning all users... Please wait!**")
 
+    # Fetch admin IDs to avoid banning them
     admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
     admin_ids = {admin.id for admin in admins}
 
-    tasks = []
+    ban_tasks = []
     count = 0
+
+    async def ban_user(user_id):
+        try:
+            await event.client(EditBannedRequest(event.chat_id, user_id, RIGHTS))
+        except FloodWaitError as e:
+            await asyncio.sleep(e.seconds)  # Handle rate limits
+        except Exception as ex:
+            print(f"Failed to ban {user_id}: {ex}")
+
+    # Process members in parallel
     async for user in event.client.iter_participants(event.chat_id):
-        if user.id in admin_ids:
-            continue  # Skip admins
+        if user.id not in admin_ids:
+            ban_tasks.append(asyncio.create_task(ban_user(user.id)))
+            count += 1
 
-        tasks.append(
-            event.client(EditBannedRequest(event.chat_id, user.id, RIGHTS))
-        )
-        count += 1
+            if count % 100 == 0:  # Process in batches of 100
+                await asyncio.gather(*ban_tasks)
+                ban_tasks = []  # Reset batch
 
-        if count % 10 == 0:  # Process in batches of 10
-            await asyncio.gather(*tasks)
-            tasks = []  # Reset batch
-
-    if tasks:  # Process remaining users
-        await asyncio.gather(*tasks)
+    if ban_tasks:  # Process remaining users
+        await asyncio.gather(*ban_tasks)
 
     await msg.edit(f"✅ **Banned {count} users successfully!**")
 
