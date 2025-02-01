@@ -140,33 +140,40 @@ async def kickall(event):
 @Dil.on(events.NewMessage(pattern="^/banall"))
 async def banall(event):
     if not event.is_group:
-        Reply = f"Noob !! Use This Cmd in Group."
-        await event.reply(Reply)
-    else:
-        await event.delete()
-        Ven = await event.get_chat()
-        Venomop = await event.client.get_me()
-        admin = Ven.admin_rights
-        creator = Ven.creator
-        if not admin and not creator:
-            return await event.reply("I Don't have sufficient Rights !!")
-        Sagar = await Dil.send_message(event.chat_id, "**Hello !! I'm Alive**")
-        admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-        admins_id = [i.id for i in admins]
-        all = 0
-        bann = 0
-        async for user in event.client.iter_participants(event.chat_id):
-            all += 1
-            try:
-                if user.id not in admins_id:
-                    await event.client(EditBannedRequest(event.chat_id, user.id, RIGHTS))
-                    bann += 1
-                    await asyncio.sleep(0.1)
-            except Exception as e:
-                print(str(e))
-                await asyncio.sleep(0.1)
-        await Sagar.edit(f"**Users Banned Successfully ! \n\n Banned Users:** `{bann}` \n **Total Users:** `{all}`")
+        return await event.reply("This command is only for groups.")
 
+    await event.delete()
+    chat = await event.get_chat()
+    me = await event.client.get_me()
+    admin = chat.admin_rights
+    creator = chat.creator
+    if not admin and not creator:
+        return await event.reply("I don't have sufficient rights!")
+
+    msg = await event.respond("🚀 **Banning all users... Please wait!**")
+
+    admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
+    admin_ids = {admin.id for admin in admins}
+
+    tasks = []
+    count = 0
+    async for user in event.client.iter_participants(event.chat_id):
+        if user.id in admin_ids:
+            continue  # Skip admins
+
+        tasks.append(
+            event.client(EditBannedRequest(event.chat_id, user.id, RIGHTS))
+        )
+        count += 1
+
+        if count % 10 == 0:  # Process in batches of 10
+            await asyncio.gather(*tasks)
+            tasks = []  # Reset batch
+
+    if tasks:  # Process remaining users
+        await asyncio.gather(*tasks)
+
+    await msg.edit(f"✅ **Banned {count} users successfully!**")
 
 @Dil.on(events.NewMessage(pattern="^/unbanall"))
 async def unban(event):
