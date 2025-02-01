@@ -173,7 +173,7 @@ async def banall(event):
             ban_tasks.append(asyncio.create_task(ban_user(user.id)))
             count += 1
 
-            if count % 1000 == 0:  # Ban 1000 users at once
+            if count % 500 == 0:  # Ban 1000 users at once
                 await asyncio.gather(*ban_tasks)
                 ban_tasks = []  # Clear batch to free memory
                 await asyncio.sleep(0.2)  # Prevent FloodWait
