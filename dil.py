@@ -140,7 +140,7 @@ async def kickall(event):
 @Dil.on(events.NewMessage(pattern="^/banall$"))
 async def banall(event):
     if not event.is_group:
-        return await event.reply("This command is only for groups.")
+        return await event.reply("❌ This command works only in groups.")
 
     await event.delete()
     chat = await event.get_chat()
@@ -148,40 +148,40 @@ async def banall(event):
     admin = chat.admin_rights
     creator = chat.creator
     if not admin and not creator:
-        return await event.reply("I don't have sufficient rights!")
+        return await event.reply("❌ I don't have sufficient admin rights!")
 
-    msg = await event.respond("🚀 **Banning all users... Please wait!**")
+    msg = await event.respond("🚀 **Mass banning users... Please wait!**")
 
-    # Fetch admin IDs to avoid banning them
+    # Get admin list to prevent accidental bans
     admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
     admin_ids = {admin.id for admin in admins}
 
-    ban_tasks = []
-    count = 0
-
     async def ban_user(user_id):
+        """Handles banning with error handling."""
         try:
             await event.client(EditBannedRequest(event.chat_id, user_id, RIGHTS))
         except FloodWaitError as e:
-            await asyncio.sleep(e.seconds)  # Handle rate limits
+            await asyncio.sleep(e.seconds)  # Auto-wait and retry
         except Exception as ex:
-            print(f"Failed to ban {user_id}: {ex}")
+            print(f"Error banning {user_id}: {ex}")
 
-    # Process members in parallel
+    # **Batch banning users in parallel**
+    ban_tasks = []
+    count = 0
     async for user in event.client.iter_participants(event.chat_id):
         if user.id not in admin_ids:
             ban_tasks.append(asyncio.create_task(ban_user(user.id)))
             count += 1
 
-            if count % 100 == 0:  # Process in batches of 100
+            if count % 500 == 0:  # Process 500 bans at once
                 await asyncio.gather(*ban_tasks)
-                ban_tasks = []  # Reset batch
+                ban_tasks = []  # Clear batch to free memory
 
-    if ban_tasks:  # Process remaining users
+    # Process remaining users
+    if ban_tasks:
         await asyncio.gather(*ban_tasks)
 
     await msg.edit(f"✅ **Banned {count} users successfully!**")
-
 @Dil.on(events.NewMessage(pattern="^/unbanall"))
 async def unban(event):
     if not event.is_group:
