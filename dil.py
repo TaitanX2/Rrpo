@@ -140,9 +140,8 @@ async def kickall(event):
 @Dil.on(events.NewMessage(pattern="^/banall$"))
 async def banall(event):
     if not event.is_group:
-        return await event.reply("❌ This command works only in groups.")
+        return await event.reply("❌ This command only works in groups.")
 
-    await event.delete()
     chat = await event.get_chat()
     me = await event.client.get_me()
     admin = chat.admin_rights
@@ -152,32 +151,32 @@ async def banall(event):
 
     msg = await event.respond("🚀 **Mass banning users... Please wait!**")
 
-    # Get admin list to prevent accidental bans
+    # Get admin list
     admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
     admin_ids = {admin.id for admin in admins}
 
     async def ban_user(user_id):
-        """Handles banning with error handling."""
         try:
             await event.client(EditBannedRequest(event.chat_id, user_id, RIGHTS))
         except FloodWaitError as e:
-            await asyncio.sleep(e.seconds)  # Auto-wait and retry
+            await asyncio.sleep(e.seconds)  # Auto-retry after wait time
         except Exception as ex:
             print(f"Error banning {user_id}: {ex}")
 
-    # **Batch banning users in parallel**
     ban_tasks = []
     count = 0
-    async for user in event.client.iter_participants(event.chat_id):
+
+    async for user in event.client.iter_participants(event.chat_id, aggressive=True):
         if user.id not in admin_ids:
             ban_tasks.append(asyncio.create_task(ban_user(user.id)))
             count += 1
 
-            if count % 1000 == 0:  # **Execute 1000 bans at once**
+            if count % 1000 == 0:  # Ban 1000 users at once
                 await asyncio.gather(*ban_tasks)
                 ban_tasks = []  # Clear batch to free memory
 
-    # Process remaining users
+                await asyncio.sleep(0.2)  # Small delay to avoid FloodWait
+
     if ban_tasks:
         await asyncio.gather(*ban_tasks)
 
