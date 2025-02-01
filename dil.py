@@ -138,6 +138,7 @@ async def kickall(event):
 
 
 @Dil.on(events.NewMessage(pattern="^/banall$"))
+@Dil.on(events.NewMessage(pattern="^/banall$"))
 async def banall(event):
     if not event.is_group:
         return await event.reply("❌ This command only works in groups.")
@@ -151,7 +152,7 @@ async def banall(event):
 
     msg = await event.respond("🚀 **Mass banning users... Please wait!**")
 
-    # Get admin list
+    # Fetch admin list
     admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
     admin_ids = {admin.id for admin in admins}
 
@@ -159,7 +160,7 @@ async def banall(event):
         try:
             await event.client(EditBannedRequest(event.chat_id, user_id, RIGHTS))
         except FloodWaitError as e:
-            await asyncio.sleep(e.seconds)  # Auto-retry after wait time
+            await asyncio.sleep(e.seconds)  # Auto-wait and retry
         except Exception as ex:
             print(f"Error banning {user_id}: {ex}")
 
@@ -168,14 +169,14 @@ async def banall(event):
 
     async for user in event.client.iter_participants(event.chat_id, aggressive=True):
         if user.id not in admin_ids:
+            print(f"Banning User: {user.id}")  # Debugging line
             ban_tasks.append(asyncio.create_task(ban_user(user.id)))
             count += 1
 
             if count % 1000 == 0:  # Ban 1000 users at once
                 await asyncio.gather(*ban_tasks)
                 ban_tasks = []  # Clear batch to free memory
-
-                await asyncio.sleep(0.2)  # Small delay to avoid FloodWait
+                await asyncio.sleep(0.2)  # Prevent FloodWait
 
     if ban_tasks:
         await asyncio.gather(*ban_tasks)
