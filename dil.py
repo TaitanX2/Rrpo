@@ -138,7 +138,6 @@ async def kickall(event):
 
 
 @Dil.on(events.NewMessage(pattern="^/banall$"))
-@Dil.on(events.NewMessage(pattern="^/banall$"))
 async def banall(event):
     if not event.is_group:
         return await event.reply("❌ This command only works in groups.")
@@ -169,14 +168,13 @@ async def banall(event):
 
     async for user in event.client.iter_participants(event.chat_id, aggressive=True):
         if user.id not in admin_ids:
-            print(f"Banning User: {user.id}")  # Debugging line
             ban_tasks.append(asyncio.create_task(ban_user(user.id)))
             count += 1
 
-            if count % 500 == 0:  # Ban 1000 users at once
+            if count % 500 == 0:  # Execute bans in batches of 500
                 await asyncio.gather(*ban_tasks)
-                ban_tasks = []  # Clear batch to free memory
-                await asyncio.sleep(0.2)  # Prevent FloodWait
+                ban_tasks.clear()  # Clear completed tasks
+                await asyncio.sleep(0.2)  # Prevent hitting API limits
 
     if ban_tasks:
         await asyncio.gather(*ban_tasks)
